@@ -1,13 +1,17 @@
 from inspect import currentframe
-from typing import Sequence, TypeVar, cast
+from typing import Generic, Mapping, Sequence, TypeVar, cast
 
 T = TypeVar("T")
+D = TypeVar("D", bound=Mapping)
 
 
-class DictBuilder:
-    def __getitem__(self, args: slice | T | Sequence[slice | T]) -> dict[str, T]:
+class DictBuilder(Generic[D]):
+    def __init__(self, mapping_type: type[D] = dict):
+        self.mapping_type = mapping_type
+
+    def __getitem__(self, args: slice | T | Sequence[slice | T]) -> D:
         if not isinstance(args, tuple):
-            args = cast(tuple, (args,))
+            args = (args,)  # type: ignore
 
         frame = currentframe()
         assert frame, "Unable to get the current frame."
@@ -16,9 +20,9 @@ class DictBuilder:
         assert caller_frame, "Unable to get the caller's frame."
 
         obj = {}
-        for arg in args:
+        for arg in cast(Sequence[slice | T], args):
             if isinstance(arg, slice):
-                assert isinstance(arg.start, str), "Ket must be a string"
+                assert isinstance(arg.start, str), "Key must be a string"
                 obj[arg.start] = arg.stop
             else:
                 for name, var in caller_frame.f_locals.items():
@@ -26,4 +30,4 @@ class DictBuilder:
                         obj[name] = arg
                         break
 
-        return obj
+        return self.mapping_type(obj) if self.mapping_type is not dict else obj  # type: ignore

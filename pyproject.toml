@@ -1,6 +1,6 @@
 [project]
 name = "literal-dict"
-version = "0.0.1.dev0"
+version = "0.0.1.dev1"
 description = "Use JavaScript-like object definition syntax in Python"
 authors = [{ name = "Muspi Merol", email = "me@muspimerol.site" }]
 dependencies = []
