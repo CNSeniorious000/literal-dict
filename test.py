@@ -1,6 +1,6 @@
 from collections import UserDict
 
-from literal_dict import DictBuilder
+from src.literal_dict import DictBuilder
 
 
 def test_self_reference():
