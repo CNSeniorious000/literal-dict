@@ -1,13 +1,13 @@
 from inspect import currentframe
-from typing import Generic, Mapping, Sequence, Type, TypeVar, Union, cast
+from typing import Callable, Generic, Mapping, Sequence, TypeVar, Union, cast
 
 T = TypeVar("T")
 D = TypeVar("D", bound=Mapping)
 
 
 class DictBuilder(Generic[D]):
-    def __init__(self, mapping_type: Type[D] = dict):
-        self.mapping_type = mapping_type
+    def __init__(self, mapping_constructor: Callable[[dict], D] = dict):
+        self.constructor = mapping_constructor
 
     def __getitem__(self, args: Union[slice, T, Sequence[Union[slice, T]]]) -> D:
         if not isinstance(args, tuple):
@@ -29,5 +29,15 @@ class DictBuilder(Generic[D]):
                     if var is arg:
                         obj[name] = arg
                         break
+                else:
+                    for name, var in caller_frame.f_globals.items():
+                        if var is arg:
+                            obj[name] = arg
+                            break
+                    else:
+                        for name, var in caller_frame.f_builtins.items():
+                            if var is arg:
+                                obj[name] = arg
+                                break
 
-        return self.mapping_type(obj) if self.mapping_type is not dict else obj  # type: ignore
+        return self.constructor(obj) if self.constructor is not dict else obj  # type: ignore

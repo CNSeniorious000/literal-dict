@@ -25,3 +25,21 @@ def test_custom_dict_class():
     d = DictBuilder(DotDict)
     a = 1
     assert d[a].a == a
+
+
+def test_global_reference():
+    d = DictBuilder()
+
+    def f():
+        assert d[DictBuilder] == {"DictBuilder": DictBuilder}
+
+    f()
+
+
+def test_builtin_reference():
+    d = DictBuilder()
+
+    def f():
+        assert d[print] == {"print": print}
+
+    f()
