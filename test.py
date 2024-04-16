@@ -43,3 +43,9 @@ def test_builtin_reference():
         assert d[print] == {"print": print}
 
     f()
+
+
+def test_same_value_different_name():
+    d = DictBuilder()
+    a = b = 1
+    assert d[a, b] == {"a": 1, "b": 1}
